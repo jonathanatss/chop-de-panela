@@ -1,9 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
-// CORREÇÃO: Alterado de 'WishListItem' para 'WishlistItem' para corresponder ao nome do ficheiro
 const WishlistItem = require('../models/WishlistItem');
-const { qrcodePix } = require('qrcode-pix');
 
 // ROTA PÚBLICA: Listar todos os itens
 router.get('/', async (req, res) => {
@@ -13,60 +11,47 @@ router.get('/', async (req, res) => {
     res.json(sortedItems);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Erro no servidor');
+    res.status(500).json({ msg: 'Erro no servidor' });
   }
 });
 
-// ROTA PÚBLICA: Adicionar uma contribuição (cota) a um item
-router.post('/:id/contribute', async (req, res) => {
-    try {
-        const { name, amount } = req.body;
-        const contributionAmount = parseFloat(amount);
-
-        if (!name || !amount) {
-            return res.status(400).json({ msg: 'Nome e valor são obrigatórios.' });
-        }
-
-        const item = await WishlistItem.findById(req.params.id);
-        if (!item) {
-            return res.status(404).json({ msg: 'Item não encontrado.' });
-        }
-
-        const amountRemaining = item.amountRemaining;
-        if (contributionAmount > amountRemaining) {
-            return res.status(400).json({ msg: `O valor da contribuição não pode exceder o valor restante de ${amountRemaining.toFixed(2)} €.` });
-        }
-        
-        const minContribution = item.price * 0.10;
-        if (contributionAmount < minContribution && contributionAmount < amountRemaining) {
-             return res.status(400).json({ msg: `A contribuição mínima é de 10% (${minContribution.toFixed(2)} €).` });
-        }
-
-        item.contributors.push({ name, amount: contributionAmount });
-        await item.save();
-
-        const pixPayload = qrcodePix({
-            version: '01',
-            key: process.env.PIX_KEY || 'sua-chave-pix-aqui',
-            name: process.env.PIX_NAME || 'Nome do Beneficiário',
-            city: process.env.PIX_CITY || 'CIDADE',
-            transactionId: item.id.slice(-25), // ID da transação para o PIX
-            message: `Presente para ${process.env.BRIDE_NAMES || 'o casal'}`,
-            value: contributionAmount,
-        });
-
-        res.json({
-            updatedItem: item,
-            pixPayload: pixPayload
-        });
-
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Erro no servidor');
-    }
-});
 
 // --- ROTAS PRIVADAS (ADMIN) ---
+
+// ROTA ADICIONADA: Para o admin registrar uma contribuição manualmente
+router.post('/:id/add-manual-contribution', auth, async (req, res) => {
+  try {
+    const { name, amount } = req.body;
+    const contributionAmount = parseFloat(amount);
+
+    if (!name || !amount) {
+      return res.status(400).json({ msg: 'Nome e valor são obrigatórios.' });
+    }
+
+    const item = await WishlistItem.findById(req.params.id);
+    if (!item) {
+      return res.status(404).json({ msg: 'Item não encontrado.' });
+    }
+
+    item.contributors.push({ name, amount: contributionAmount });
+    
+    // Atualiza o status se o item foi totalmente financiado
+    if (item.amountContributed >= item.price) {
+        item.purchased = true;
+        item.purchaseDate = new Date();
+        // Agrega o nome do contribuinte ao campo 'purchasedBy'
+        item.purchasedBy = item.purchasedBy ? `${item.purchasedBy}, ${name}` : name;
+    }
+
+    await item.save();
+    res.json(item);
+
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ msg: 'Erro no servidor' });
+  }
+});
+
 
 router.post('/', auth, async (req, res) => {
   try {
@@ -76,7 +61,7 @@ router.post('/', auth, async (req, res) => {
     res.status(201).json(newItem);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Erro no servidor');
+    res.status(500).json({ msg: 'Erro no servidor' });
   }
 });
 
@@ -90,7 +75,7 @@ router.put('/:id', auth, async (req, res) => {
     res.json(item);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Erro no servidor');
+    res.status(500).json({ msg: 'Erro no servidor' });
   }
 });
 
@@ -100,9 +85,8 @@ router.delete('/:id', auth, async (req, res) => {
     res.json({ msg: 'Item removido' });
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Erro no servidor');
+    res.status(500).json({ msg: 'Erro no servidor' });
   }
 });
 
 module.exports = router;
-

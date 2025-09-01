@@ -20,6 +20,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/settings', require('./routes/settings'));
 app.use('/api/wishlist', require('./routes/wishlist'));
 app.use('/api/messages', require('./routes/messages'));
+app.use('/api/payment', require('./routes/payment')); // ROTA DE PAGAMENTO ADICIONADA
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Backend rodando na porta ${PORT}`));

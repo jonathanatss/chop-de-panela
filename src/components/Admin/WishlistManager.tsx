@@ -7,28 +7,33 @@ import {
   CheckCircle, 
   Clock,
   Search,
-  Filter
+  Filter,
+  DollarSign
 } from 'lucide-react';
 import { WishlistItem } from '../../types';
 
 interface WishlistManagerProps {
   wishlist: WishlistItem[];
-  onAddItem: (item: Omit<WishlistItem, 'id'>) => void;
+  onAddItem: (item: Omit<WishlistItem, 'id' | 'contributors' | 'amountContributed' | 'amountRemaining' | 'isFullyFunded' | 'purchased' | 'purchasedBy' | 'purchaseDate'>) => void;
   onUpdateItem: (id: string, item: Partial<WishlistItem>) => void;
   onDeleteItem: (id: string) => void;
+  onAddContribution: (itemId: string, name: string, amount: number) => void;
 }
 
 const WishlistManager: React.FC<WishlistManagerProps> = ({
   wishlist,
   onAddItem,
   onUpdateItem,
-  onDeleteItem
+  onDeleteItem,
+  onAddContribution
 }) => {
   const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] = useState<WishlistItem | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('Todos');
   const [statusFilter, setStatusFilter] = useState('Todos');
+  const [showContributionForm, setShowContributionForm] = useState<WishlistItem | null>(null);
+  const [contributionData, setContributionData] = useState({ name: '', amount: '' });
   
   const [formData, setFormData] = useState({
     name: '',
@@ -38,6 +43,7 @@ const WishlistManager: React.FC<WishlistManagerProps> = ({
     category: 'Cozinha'
   });
 
+  // LÓGICA DE FILTRO RESTAURADA AQUI
   const categories = ['Todos', ...new Set(wishlist.map(item => item.category))];
   const statusOptions = ['Todos', 'Disponível', 'Presenteado'];
 
@@ -61,7 +67,6 @@ const WishlistManager: React.FC<WishlistManagerProps> = ({
       price: parseFloat(formData.price),
       image: formData.image || 'https://images.pexels.com/photos/4226796/pexels-photo-4226796.jpeg?auto=compress&cs=tinysrgb&w=400',
       category: formData.category,
-      purchased: false
     };
 
     if (editingItem) {
@@ -110,6 +115,19 @@ const WishlistManager: React.FC<WishlistManagerProps> = ({
     });
     setShowForm(false);
     setEditingItem(null);
+  };
+
+  const handleAddContributionSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (showContributionForm && contributionData.name && contributionData.amount) {
+      onAddContribution(
+        showContributionForm.id,
+        contributionData.name,
+        parseFloat(contributionData.amount)
+      );
+      setShowContributionForm(null);
+      setContributionData({ name: '', amount: '' });
+    }
   };
 
   const totalItems = wishlist.length;
@@ -288,14 +306,14 @@ const WishlistManager: React.FC<WishlistManagerProps> = ({
                 {item.description}
               </p>
               
-              {item.purchased && (
+              {item.purchased && item.purchasedBy && (
                 <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
                   <p className="text-green-800 text-sm">
                     <strong>Presenteado por:</strong> {item.purchasedBy}
                   </p>
-                  <p className="text-green-600 text-xs">
-                    {new Date(item.purchaseDate!).toLocaleDateString('pt-BR')}
-                  </p>
+                  {item.purchaseDate && <p className="text-green-600 text-xs">
+                    {new Date(item.purchaseDate).toLocaleDateString('pt-BR')}
+                  </p>}
                 </div>
               )}
               
@@ -304,6 +322,13 @@ const WishlistManager: React.FC<WishlistManagerProps> = ({
                   {item.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                 </span>
                 <div className="flex space-x-2">
+                   <button
+                    onClick={() => setShowContributionForm(item)}
+                    className="p-2 text-green-600 hover:bg-green-100 rounded-lg transition-colors"
+                    title="Adicionar Contribuição Manual"
+                  >
+                    <DollarSign className="h-4 w-4" />
+                  </button>
                   <button
                     onClick={() => handleEdit(item)}
                     className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
@@ -441,6 +466,60 @@ const WishlistManager: React.FC<WishlistManagerProps> = ({
                     className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-lg hover:from-pink-600 hover:to-rose-600 transition-all"
                   >
                     {editingItem ? 'Salvar' : 'Adicionar'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Formulário para Adicionar Contribuição Manual */}
+      {showContributionForm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full">
+            <div className="p-8">
+              <h3 className="text-2xl font-bold text-gray-800 mb-2">Registrar Contribuição</h3>
+              <p className="text-gray-600 mb-6">Para: {showContributionForm.name}</p>
+              
+              <form onSubmit={handleAddContributionSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Nome do Contribuinte</label>
+                  <input
+                    type="text"
+                    value={contributionData.name}
+                    onChange={(e) => setContributionData({ ...contributionData, name: e.target.value })}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                    placeholder="Ex: Maria Silva"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Valor (R$)</label>
+                  <input
+                    type="number"
+                    value={contributionData.amount}
+                    onChange={(e) => setContributionData({ ...contributionData, amount: e.target.value })}
+                    required
+                    step="0.01"
+                    min="0"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                    placeholder="50.00"
+                  />
+                </div>
+                <div className="flex space-x-4 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowContributionForm(null)}
+                    className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600"
+                  >
+                    Salvar Contribuição
                   </button>
                 </div>
               </form>

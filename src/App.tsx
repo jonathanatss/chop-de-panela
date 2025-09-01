@@ -19,7 +19,6 @@ const AppContent = () => {
   const [currentView, setCurrentView] = useState<'public' | 'admin'>('public');
   const [adminSection, setAdminSection] = useState('dashboard');
   
-  // CORREÇÃO: Iniciar estados como null para verificação explícita
   const [wishlist, setWishlist] = useState<WishlistItem[] | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [eventInfo, setEventInfo] = useState<EventInfo | null>(null);
@@ -49,36 +48,20 @@ const AppContent = () => {
           fetch(`${API_URL}/wishlist`).then(res => res.json())
         ]);
         setEventInfo(eventInfoData);
-        setWishlist(wishlistData || []); // Garante que wishlist seja sempre um array
+        setWishlist(wishlistData || []);
         if (token) {
           const messagesData = await authFetch(`${API_URL}/messages`);
           setMessages(messagesData || []);
         }
       } catch (error) {
         console.error("Erro ao buscar dados iniciais:", error);
-        setWishlist([]); // Em caso de erro, define como um array vazio para evitar crash
+        setWishlist([]);
       } finally {
         setIsLoadingData(false);
       }
     };
     fetchData();
   }, [token, authFetch]);
-  
-  const handleContributeToItem = async (itemId: string, contributorName: string, amount: number): Promise<{success: boolean, error?: string, pixPayload?: string}> => {
-    try {
-      const response = await authFetch(`${API_URL}/wishlist/${itemId}/contribute`, {
-        method: 'POST',
-        body: JSON.stringify({ name: contributorName, amount }),
-      });
-      if (wishlist) {
-        setWishlist(prev => prev!.map(item => (item.id === itemId ? response.updatedItem : item)));
-      }
-      return { success: true, pixPayload: response.pixPayload };
-    } catch (error: any) {
-      console.error("Erro ao contribuir para o item:", error);
-      return { success: false, error: error.message };
-    }
-  };
 
   const handleAddItem = async (newItem: Omit<WishlistItem, 'id' | 'contributors' | 'amountContributed' | 'amountRemaining' | 'isFullyFunded'>) => {
     try {
@@ -119,8 +102,9 @@ const AppContent = () => {
 
   const handleSubmitMessage = async (name: string, email: string, message: string) => {
     try {
-        await authFetch(`${API_URL}/messages`, {
+        await fetch(`${API_URL}/messages`, {
             method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name, email, message })
         });
     } catch (error) {
@@ -154,6 +138,20 @@ const AppContent = () => {
     setEventInfo(updatedInfo);
   };
 
+  const handleAddManualContribution = async (itemId: string, name: string, amount: number) => {
+    try {
+      const updatedItem = await authFetch(`${API_URL}/wishlist/${itemId}/add-manual-contribution`, {
+        method: 'POST',
+        body: JSON.stringify({ name, amount }),
+      });
+      if (wishlist) {
+        setWishlist(prev => prev!.map(item => (item.id === itemId ? updatedItem : item)));
+      }
+    } catch (error) {
+      console.error("Erro ao adicionar contribuição manual:", error);
+    }
+  };
+
   const handleViewChange = (view: 'public' | 'admin') => {
     setCurrentView(view);
     if (view === 'admin' && user) setAdminSection('dashboard');
@@ -169,8 +167,14 @@ const AppContent = () => {
       <div className="min-h-screen bg-gray-50">
         <Header currentView={currentView} onViewChange={handleViewChange} />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <Dashboard wishlist={wishlist} messages={messages} eventInfo={eventInfo} onNavigate={handleAdminNavigate}/>
-          {adminSection === 'wishlist' && <WishlistManager wishlist={wishlist} onAddItem={handleAddItem} onUpdateItem={handleUpdateItem} onDeleteItem={handleDeleteItem}/>}
+          {adminSection === 'dashboard' && <Dashboard wishlist={wishlist} messages={messages} eventInfo={eventInfo} onNavigate={handleAdminNavigate} />}
+          {adminSection === 'wishlist' && <WishlistManager 
+              wishlist={wishlist} 
+              onAddItem={handleAddItem} 
+              onUpdateItem={handleUpdateItem} 
+              onDeleteItem={handleDeleteItem}
+              onAddContribution={handleAddManualContribution}
+            />}
           {adminSection === 'messages' && <MessagesManager messages={messages} onMarkRead={handleMarkMessageRead} onDelete={handleDeleteMessage}/>}
           {adminSection === 'settings' && <SettingsManager eventInfo={eventInfo} onUpdate={handleUpdateEventInfo}/>}
         </main>
@@ -178,7 +182,6 @@ const AppContent = () => {
     );
   }
 
-  // CORREÇÃO: Verificação de segurança mais robusta antes de renderizar
   if (!eventInfo || !wishlist) return <div className="min-h-screen flex items-center justify-center bg-light-foam text-dark-wood">Falha ao carregar. Verifique se o backend está a correr e recarregue.</div>
 
   return (
@@ -187,7 +190,7 @@ const AppContent = () => {
       <main>
         <Hero eventInfo={eventInfo} />
         <About eventInfo={eventInfo} />
-        <Wishlist wishlist={wishlist} onContribute={handleContributeToItem} />
+        <Wishlist wishlist={wishlist} />
         <Contact eventInfo={eventInfo} onSubmitMessage={handleSubmitMessage} />
       </main>
       <footer className="bg-dark-wood text-white py-12">

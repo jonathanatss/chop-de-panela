@@ -14,9 +14,9 @@
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.0",
+    "mercadopago": "^2.0.10",
     "mongodb": "^6.19.0",
-    "mongoose": "^7.0.3",
-    "qrcode-pix": "^5.0.0"
+    "mongoose": "^7.0.3"
   },
   "devDependencies": {
     "nodemon": "^2.0.22"

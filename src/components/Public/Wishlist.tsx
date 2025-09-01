@@ -1,25 +1,20 @@
 import React, { useState } from 'react';
-import { Package, Heart, CheckCircle, Gift, CreditCard, Copy, QrCode } from 'lucide-react';
+import { Heart, CheckCircle, Gift, CreditCard } from 'lucide-react';
 import { WishlistItem } from '../../types';
-import { QRCodeSVG as QRCode } from 'qrcode.react';
 
+// O onContribute não é mais passado como prop
 interface WishlistProps {
   wishlist: WishlistItem[];
-  onContribute: (itemId: string, contributorName: string, amount: number) => Promise<{success: boolean, error?: string, pixPayload?: string}>;
 }
 
-const Wishlist: React.FC<WishlistProps> = ({ wishlist, onContribute }) => {
+const Wishlist: React.FC<WishlistProps> = ({ wishlist }) => {
   const [selectedCategory, setSelectedCategory] = useState('Todos');
-  const [modalStep, setModalStep] = useState<'form' | 'pix'>('form');
   const [selectedItem, setSelectedItem] = useState<WishlistItem | null>(null);
   const [contributorName, setContributorName] = useState('');
   const [contributionAmount, setContributionAmount] = useState('');
-  const [pixPayload, setPixPayload] = useState<string | null>(null);
-  const [pixCopied, setPixCopied] = useState(false);
   const [modalError, setModalError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // CORREÇÃO: Verificação de segurança no início do componente
   if (!Array.isArray(wishlist)) {
     return (
       <section className="py-20 bg-light-foam" id="wishlist">
@@ -28,7 +23,6 @@ const Wishlist: React.FC<WishlistProps> = ({ wishlist, onContribute }) => {
     );
   }
 
-  // CORREÇÃO: Mapeamento seguro para evitar erros
   const categories = ['Todos', ...new Set(wishlist.filter(item => item && item.category).map(item => item.category))];
   
   const filteredWishlist = selectedCategory === 'Todos' 
@@ -37,47 +31,57 @@ const Wishlist: React.FC<WishlistProps> = ({ wishlist, onContribute }) => {
 
   const handleOpenModal = (item: WishlistItem) => {
     setSelectedItem(item);
-    setModalStep('form');
     setContributionAmount('');
     setModalError('');
     setContributorName('');
     setIsSubmitting(false);
-    setPixPayload(null);
   };
   
   const handleCloseModal = () => {
     setSelectedItem(null);
   }
 
-  const handleGeneratePix = async () => {
+  const handlePayment = async () => {
     if (selectedItem && contributorName.trim() && contributionAmount) {
       setIsSubmitting(true);
       setModalError('');
-      const amount = parseFloat(contributionAmount);
-      const result = await onContribute(selectedItem.id, contributorName, amount);
-      if (result.success && result.pixPayload) {
-        setPixPayload(result.pixPayload);
-        setModalStep('pix');
-      } else {
-        setModalError(result.error || 'Ocorreu um erro desconhecido.');
+      try {
+        const response = await fetch('http://localhost:5000/api/payment/create-preference', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            itemId: selectedItem.id,
+            amount: parseFloat(contributionAmount),
+            contributorName: contributorName,
+          }),
+        });
+
+        if (!response.ok) {
+          const err = await response.json();
+          throw new Error(err.msg || 'Falha ao criar preferência de pagamento.');
+        }
+
+        const data = await response.json();
+        window.location.href = data.init_point;
+
+      } catch (error: any) {
+        setModalError(error.message);
+        setIsSubmitting(false);
       }
-      setIsSubmitting(false);
     }
   };
   
-  const copyPixPayload = () => {
-    if(pixPayload) {
-      navigator.clipboard.writeText(pixPayload);
-      setPixCopied(true);
-      setTimeout(() => setPixCopied(false), 2000);
-    }
-  };
-
   const formatPrice = (price: number) => price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   
   const totalItems = wishlist.length;
   const fundedItems = wishlist.filter(item => item && item.isFullyFunded).length;
   const progress = totalItems > 0 ? (fundedItems / totalItems) * 100 : 0;
+
+  let effectiveMin = 0;
+  if (selectedItem) {
+    const minContribution = parseFloat((selectedItem.price * 0.10).toFixed(2));
+    effectiveMin = Math.min(minContribution, selectedItem.amountRemaining);
+  }
 
   return (
     <section className="py-20 bg-light-foam" id="wishlist">
@@ -105,7 +109,7 @@ const Wishlist: React.FC<WishlistProps> = ({ wishlist, onContribute }) => {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredWishlist.map((item) => {
-            if (!item) return null; // Verificação adicional para segurança
+            if (!item) return null;
             const contributionProgress = (item.amountContributed / item.price) * 100;
             return (
               <div key={item.id} className={`bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 flex flex-col ${item.isFullyFunded ? 'opacity-75' : 'hover:shadow-xl hover:transform hover:-translate-y-2'}`}>
@@ -138,37 +142,32 @@ const Wishlist: React.FC<WishlistProps> = ({ wishlist, onContribute }) => {
       {selectedItem && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl max-w-md w-full p-8 transition-all duration-300">
-            {modalStep === 'form' && (
-              <div>
-                <div className="text-center mb-6"><Heart className="h-12 w-12 text-beer-amber mx-auto mb-4" /><h3 className="text-2xl font-bold text-dark-wood mb-2">Contribuir para {selectedItem.name}</h3><p className="text-gray-600">Faltam <strong>{formatPrice(selectedItem.amountRemaining)}</strong> para completar.</p></div>
-                <div className="space-y-4 mb-6">
-                  <div><label className="block text-sm font-medium text-gray-700 mb-2">O seu nome:</label><input type="text" value={contributorName} onChange={(e) => setContributorName(e.target.value)} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-beer-amber" placeholder="Digite o seu nome completo"/></div>
-                  <div><label className="block text-sm font-medium text-gray-700 mb-2">Valor da contribuição (€):</label><input type="number" value={contributionAmount} onChange={(e) => setContributionAmount(e.target.value)} min={(selectedItem.price * 0.10).toFixed(2)} max={selectedItem.amountRemaining.toFixed(2)} step="0.01" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-beer-amber" placeholder={`Mínimo ${formatPrice(selectedItem.price * 0.10)}`}/></div>
-                </div>
-                {modalError && <p className="text-red-600 text-sm text-center mb-4">{modalError}</p>}
-                <div className="flex space-x-4">
-                  <button onClick={handleCloseModal} className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-semibold">Cancelar</button>
-                  <button onClick={handleGeneratePix} disabled={!contributorName.trim() || !contributionAmount || isSubmitting} className="flex-1 px-4 py-3 bg-dark-wood text-white rounded-lg hover:bg-black transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 font-semibold">
-                    {isSubmitting ? <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div> : <QrCode className="h-4 w-4" />}<span>{isSubmitting ? 'A gerar...' : 'Gerar PIX'}</span>
-                  </button>
+            <div>
+              <div className="text-center mb-6"><Heart className="h-12 w-12 text-beer-amber mx-auto mb-4" /><h3 className="text-2xl font-bold text-dark-wood mb-2">Contribuir para {selectedItem.name}</h3><p className="text-gray-600">Faltam <strong>{formatPrice(selectedItem.amountRemaining)}</strong> para completar.</p></div>
+              <div className="space-y-4 mb-6">
+                <div><label className="block text-sm font-medium text-gray-700 mb-2">O seu nome:</label><input type="text" value={contributorName} onChange={(e) => setContributorName(e.target.value)} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-beer-amber" placeholder="Digite o seu nome completo"/></div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Valor da contribuição (R$):</label>
+                  <input 
+                    type="number" 
+                    value={contributionAmount} 
+                    onChange={(e) => setContributionAmount(e.target.value)} 
+                    min={effectiveMin.toFixed(2)} 
+                    max={selectedItem.amountRemaining.toFixed(2)} 
+                    step="0.01" 
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-beer-amber" 
+                    placeholder={`Mínimo ${formatPrice(effectiveMin)}`}
+                  />
                 </div>
               </div>
-            )}
-            
-            {modalStep === 'pix' && pixPayload && (
-              <div>
-                <div className="text-center mb-6"><QrCode className="h-12 w-12 text-beer-amber mx-auto mb-4" /><h3 className="text-2xl font-bold text-dark-wood mb-2">PIX Gerado com Sucesso!</h3><p className="text-gray-600">A sua contribuição foi registada! Agora só falta pagar.</p></div>
-                <div className="flex justify-center mb-4"><QRCode value={pixPayload} size={200} /></div>
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">PIX Copia e Cola:</label>
-                  <div className="relative">
-                    <input type="text" readOnly value={pixPayload} className="w-full bg-gray-100 p-3 pr-12 text-xs border border-gray-300 rounded-lg"/>
-                    <button onClick={copyPixPayload} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-gray-500 hover:text-dark-wood">{pixCopied ? <CheckCircle className="h-5 w-5 text-green-600"/> : <Copy className="h-5 w-5"/>}</button>
-                  </div>
-                </div>
-                <button onClick={handleCloseModal} className="w-full px-4 py-3 bg-dark-wood text-white rounded-lg hover:bg-black transition-all font-semibold">Fechar</button>
+              {modalError && <p className="text-red-600 text-sm text-center mb-4">{modalError}</p>}
+              <div className="flex space-x-4">
+                <button onClick={handleCloseModal} className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-semibold">Cancelar</button>
+                <button onClick={handlePayment} disabled={!contributorName.trim() || !contributionAmount || isSubmitting} className="flex-1 px-4 py-3 bg-dark-wood text-white rounded-lg hover:bg-black transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 font-semibold">
+                  {isSubmitting ? <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div> : <CreditCard className="h-4 w-4" />}<span>{isSubmitting ? 'Aguarde...' : 'Pagar Agora'}</span>
+                </button>
               </div>
-            )}
+            </div>
           </div>
         </div>
       )}

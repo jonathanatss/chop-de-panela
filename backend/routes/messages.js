@@ -10,7 +10,7 @@ router.post('/', async (req, res) => {
     await newMessage.save();
     res.status(201).json(newMessage);
   } catch (err) {
-    res.status(500).send('Erro no servidor');
+    res.status(500).json({ msg: 'Erro no servidor' });
   }
 });
 
@@ -20,7 +20,7 @@ router.get('/', auth, async (req, res) => {
     const messages = await Message.find().sort({ date: -1 });
     res.json(messages);
   } catch (err) {
-    res.status(500).send('Erro no servidor');
+    res.status(500).json({ msg: 'Erro no servidor' });
   }
 });
 
@@ -34,7 +34,7 @@ router.patch('/read/:id', auth, async (req, res) => {
         await message.save();
         res.json(message);
     } catch (err) {
-        res.status(500).send('Erro no servidor');
+        res.status(500).json({ msg: 'Erro no servidor' });
     }
 });
 
@@ -43,7 +43,7 @@ router.delete('/:id', auth, async (req, res) => {
     await Message.findByIdAndDelete(req.params.id);
     res.json({ msg: 'Mensagem removida' });
   } catch (err) {
-    res.status(500).send('Erro no servidor');
+    res.status(500).json({ msg: 'Erro no servidor' });
   }
 });
 
