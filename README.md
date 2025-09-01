@@ -35,7 +35,7 @@ Um site completo e elegante para chá de panela com área administrativa integra
 
 #### **Opção B: Via Git (se disponível)**
 ```bash
-git clone [URL_DO_REPOSITORIO]
+git clone [URL_DO_REPOSITORIO](https://github.com/jonathanatss/chop-de-panela.git)
 cd cha-de-panela
 ```
 
