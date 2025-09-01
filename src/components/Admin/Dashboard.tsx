@@ -20,14 +20,17 @@ interface DashboardProps {
 
 const Dashboard: React.FC<DashboardProps> = ({ wishlist, messages, eventInfo, onNavigate }) => {
   const totalItems = wishlist.length;
-  const purchasedItems = wishlist.filter(item => item.purchased).length;
+  
+  // CORREÇÃO: Alterado de 'item.purchased' para 'item.isFullyFunded' para a contagem correta.
+  const purchasedItems = wishlist.filter(item => item.isFullyFunded).length;
+
   const pendingItems = totalItems - purchasedItems;
   const unreadMessages = messages.filter(msg => !msg.read).length;
   const completionRate = totalItems > 0 ? (purchasedItems / totalItems) * 100 : 0;
 
   const totalValue = wishlist.reduce((sum, item) => sum + item.price, 0);
   const purchasedValue = wishlist
-    .filter(item => item.purchased)
+    .filter(item => item.isFullyFunded) // Também corrigido aqui para consistência
     .reduce((sum, item) => sum + item.price, 0);
 
   const stats = [
@@ -94,7 +97,7 @@ const Dashboard: React.FC<DashboardProps> = ({ wishlist, messages, eventInfo, on
     .slice(0, 3);
 
   const recentPurchases = wishlist
-    .filter(item => item.purchased && item.purchaseDate)
+    .filter(item => item.isFullyFunded && item.purchaseDate) // Corrigido aqui também
     .sort((a, b) => new Date(b.purchaseDate!).getTime() - new Date(a.purchaseDate!).getTime())
     .slice(0, 3);
 

@@ -20,10 +20,16 @@ export interface WishlistItem {
   image: string;
   category: string;
   contributors: Contribution[];
+  
   // Campos virtuais que virão do backend
   amountContributed: number;
   amountRemaining: number;
   isFullyFunded: boolean;
+
+  // Propriedades adicionadas para o admin (marcadas como opcionais)
+  purchased?: boolean;
+  purchasedBy?: string;
+  purchaseDate?: string;
 }
 
 export interface Message {

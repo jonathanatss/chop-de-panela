@@ -43,7 +43,6 @@ const WishlistManager: React.FC<WishlistManagerProps> = ({
     category: 'Cozinha'
   });
 
-  // LÓGICA DE FILTRO RESTAURADA AQUI
   const categories = ['Todos', ...new Set(wishlist.map(item => item.category))];
   const statusOptions = ['Todos', 'Disponível', 'Presenteado'];
 
@@ -51,9 +50,11 @@ const WishlistManager: React.FC<WishlistManagerProps> = ({
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          item.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = categoryFilter === 'Todos' || item.category === categoryFilter;
+    
+    // CORREÇÃO: Lógica do filtro de status alterada para usar 'isFullyFunded'
     const matchesStatus = statusFilter === 'Todos' ||
-                         (statusFilter === 'Disponível' && !item.purchased) ||
-                         (statusFilter === 'Presenteado' && item.purchased);
+                         (statusFilter === 'Disponível' && !item.isFullyFunded) ||
+                         (statusFilter === 'Presenteado' && item.isFullyFunded);
     
     return matchesSearch && matchesCategory && matchesStatus;
   });
@@ -131,9 +132,11 @@ const WishlistManager: React.FC<WishlistManagerProps> = ({
   };
 
   const totalItems = wishlist.length;
-  const purchasedItems = wishlist.filter(item => item.purchased).length;
+  // CORREÇÃO: Contagem de itens presenteados para o cabeçalho
+  const purchasedItems = wishlist.filter(item => item.isFullyFunded).length;
   const totalValue = wishlist.reduce((sum, item) => sum + item.price, 0);
-  const purchasedValue = wishlist.filter(item => item.purchased).reduce((sum, item) => sum + item.price, 0);
+  // CORREÇÃO: Cálculo do valor arrecadado
+  const purchasedValue = wishlist.reduce((sum, item) => sum + item.amountContributed, 0);
 
   return (
     <div className="space-y-8">
@@ -284,10 +287,12 @@ const WishlistManager: React.FC<WishlistManagerProps> = ({
                 alt={item.name}
                 className="w-full h-48 object-cover"
               />
-              {item.purchased && (
+              {/* CORREÇÃO: Indicador visual de item presenteado */}
+              {item.isFullyFunded && (
                 <div className="absolute top-4 right-4">
-                  <div className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                    Presenteado
+                  <div className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center space-x-1">
+                    <CheckCircle size={14} />
+                    <span>Presenteado</span>
                   </div>
                 </div>
               )}
@@ -306,7 +311,7 @@ const WishlistManager: React.FC<WishlistManagerProps> = ({
                 {item.description}
               </p>
               
-              {item.purchased && item.purchasedBy && (
+              {item.isFullyFunded && item.purchasedBy && (
                 <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
                   <p className="text-green-800 text-sm">
                     <strong>Presenteado por:</strong> {item.purchasedBy}
@@ -532,3 +537,4 @@ const WishlistManager: React.FC<WishlistManagerProps> = ({
 };
 
 export default WishlistManager;
+
