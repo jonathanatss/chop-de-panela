@@ -5,6 +5,13 @@ export interface User {
   token?: string;
 }
 
+export interface Contribution {
+  _id: string;
+  name: string;
+  amount: number;
+  date: string;
+}
+
 export interface WishlistItem {
   id: string;
   name: string;
@@ -12,9 +19,11 @@ export interface WishlistItem {
   price: number;
   image: string;
   category: string;
-  purchased: boolean;
-  purchasedBy?: string;
-  purchaseDate?: string;
+  contributors: Contribution[];
+  // Campos virtuais que virão do backend
+  amountContributed: number;
+  amountRemaining: number;
+  isFullyFunded: boolean;
 }
 
 export interface Message {

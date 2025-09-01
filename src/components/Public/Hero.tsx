@@ -8,7 +8,9 @@ interface HeroProps {
 
 const Hero: React.FC<HeroProps> = ({ eventInfo }) => {
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR', {
+    if (!dateString) return 'Data a definir';
+    // Adiciona T00:00:00 para evitar problemas de fuso horário
+    return new Date(`${dateString}T00:00:00`).toLocaleDateString('pt-BR', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
@@ -17,47 +19,45 @@ const Hero: React.FC<HeroProps> = ({ eventInfo }) => {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center">
+    <section className="relative min-h-screen flex items-center justify-center text-white">
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: `url(${eventInfo.heroImage})`,
-        }}
+        style={{ backgroundImage: `url(${eventInfo.heroImage})` }}
       >
-        <div className="absolute inset-0 bg-black/40"></div>
+        <div className="absolute inset-0 bg-black/50"></div>
       </div>
       
-      <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
+      <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-5xl md:text-7xl font-bold mb-4 tracking-tight">
+          <h1 className="text-6xl md:text-8xl font-black mb-4 tracking-tight uppercase font-display text-shadow">
             {eventInfo.brideNames}
           </h1>
-          <p className="text-xl md:text-2xl font-light mb-8 opacity-90">
-            Chá de Panela
+          <p className="text-3xl md:text-4xl font-light mb-8 opacity-90 font-display tracking-wider">
+            Nosso Chopp de Panela
           </p>
         </div>
         
-        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 mx-auto max-w-2xl">
+        <div className="bg-black/20 backdrop-blur-sm rounded-2xl p-8 mx-auto max-w-2xl border border-white/20">
           <div className="grid md:grid-cols-3 gap-6">
             <div className="flex flex-col items-center">
-              <Calendar className="h-8 w-8 mb-3 text-pink-300" />
-              <h3 className="font-semibold text-lg mb-1">Data</h3>
+              <Calendar className="h-8 w-8 mb-3 text-beer-gold" />
+              <h3 className="font-semibold text-lg mb-1 uppercase tracking-wider">Data</h3>
               <p className="text-sm opacity-90 text-center">
                 {formatDate(eventInfo.eventDate)}
               </p>
             </div>
             
             <div className="flex flex-col items-center">
-              <Clock className="h-8 w-8 mb-3 text-pink-300" />
-              <h3 className="font-semibold text-lg mb-1">Horário</h3>
+              <Clock className="h-8 w-8 mb-3 text-beer-gold" />
+              <h3 className="font-semibold text-lg mb-1 uppercase tracking-wider">Horário</h3>
               <p className="text-sm opacity-90">
                 {eventInfo.eventTime}
               </p>
             </div>
             
             <div className="flex flex-col items-center">
-              <MapPin className="h-8 w-8 mb-3 text-pink-300" />
-              <h3 className="font-semibold text-lg mb-1">Local</h3>
+              <MapPin className="h-8 w-8 mb-3 text-beer-gold" />
+              <h3 className="font-semibold text-lg mb-1 uppercase tracking-wider">Local</h3>
               <p className="text-sm opacity-90 text-center">
                 {eventInfo.eventLocation}
               </p>
