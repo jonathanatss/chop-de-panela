@@ -1,18 +1,22 @@
 import React, { useState } from 'react';
-import { Heart, CheckCircle, Gift, CreditCard } from 'lucide-react';
+import { Heart, CheckCircle, Gift, CreditCard, Check, Copy, Table } from 'lucide-react';
 import { WishlistItem } from '../../types';
+import { EventInfo } from '../../types';
 
 interface WishlistProps {
   wishlist: WishlistItem[];
+  eventInfo: EventInfo;
 }
 
-const Wishlist: React.FC<WishlistProps> = ({ wishlist }) => {
+const Wishlist: React.FC<WishlistProps> = ({ eventInfo, wishlist }) => {
   const [selectedCategory, setSelectedCategory] = useState('Todos');
   const [selectedItem, setSelectedItem] = useState<WishlistItem | null>(null);
   const [contributorName, setContributorName] = useState('');
   const [contributionAmount, setContributionAmount] = useState('');
   const [modalError, setModalError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pixCopied, setPixCopied] = useState(false);
+  const [thanks, setThanks] = useState(false);
 
   if (!Array.isArray(wishlist)) {
     return (
@@ -35,9 +39,44 @@ const Wishlist: React.FC<WishlistProps> = ({ wishlist }) => {
     setContributorName('');
     setIsSubmitting(false);
   };
+
+  const handleConfirmPayment = async () => {
+    const data = {
+      'contributorName': contributorName,
+      'contributionAmount': contributionAmount,
+      'wishListItem': selectedItem
+    }
+
+    setIsSubmitting(true);
+    setModalError('');
+
+    try {
+      // const response = await fetch("http://localhost:5000/api/wishlist/contribution/send-confirm-email", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify(data)
+      // });
+
+      // if (!response.ok) {
+      //   const err = await response.json();
+      //   throw new Error(err.msg || 'Falha ao confirmar contribuição.');
+      // }
+
+      setThanks(true);
+
+    } catch( error : any){
+      setModalError(error.message);
+      setIsSubmitting(false);
+    }
+  };
   
   const handleCloseModal = () => {
     setSelectedItem(null);
+  }
+
+  const handleCloseContribuitionModal = () => {
+    handleCloseModal();
+    setThanks(false);
   }
 
   const handlePayment = async () => {
@@ -69,6 +108,30 @@ const Wishlist: React.FC<WishlistProps> = ({ wishlist }) => {
       }
     }
   };
+
+  const copyPixKey = async () => {
+    try {
+      await navigator.clipboard.writeText(eventInfo.pixKey);
+      setPixCopied(true);
+      setTimeout(() => setPixCopied(false), 2000);
+    } catch (err) {
+      console.error('Erro ao copiar PIX:', err);
+    }
+  };
+
+  if (thanks) {
+    return (
+      <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
+        <div className="bg-white p-6 rounded-xl text-center">
+          <h2 className="text-xl font-bold mb-3">🎉 Obrigado!</h2>
+          <p className="mb-3">Sua contribuição foi registrada com sucesso.</p>
+          <button className="bg-accent text-accent-foreground px-6 py-2 rounded-md hover:bg-accent/90 transition-all space-x-2 font-semibold" onClick={handleCloseContribuitionModal}>
+            Fechar
+          </button>
+        </div>
+      </div>
+    );
+  }
   
   const formatPrice = (price: number) => price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   
@@ -160,10 +223,30 @@ const Wishlist: React.FC<WishlistProps> = ({ wishlist }) => {
                 </div>
               </div>
               {modalError && <p className="text-destructive text-sm text-center mb-4">{modalError}</p>}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Chave PIX
+                </label>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="text"
+                    value={eventInfo.pixKey}
+                    readOnly
+                    className="flex-1 px-4 py-3 border border-input rounded-md bg-background text-muted-foreground"
+                  />
+                  <button
+                    onClick={copyPixKey}
+                    className="px-4 py-3 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors flex items-center space-x-2"
+                  >
+                    {pixCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                    <span>{pixCopied ? 'Copiado!' : 'Copiar'}</span>
+                  </button>
+                </div>
+              </div>
               <div className="flex space-x-4">
                 <button onClick={handleCloseModal} className="flex-1 px-4 py-3 border border-border text-foreground rounded-md hover:bg-secondary transition-colors font-semibold">Cancelar</button>
-                <button onClick={handlePayment} disabled={!contributorName.trim() || !contributionAmount || isSubmitting} className="flex-1 px-4 py-3 bg-accent text-accent-foreground rounded-md hover:bg-accent/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 font-semibold">
-                  {isSubmitting ? <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div> : <CreditCard className="h-4 w-4" />}<span>{isSubmitting ? 'Aguarde...' : 'Pagar Agora'}</span>
+                <button onClick={handleConfirmPayment} disabled={!contributorName.trim() || !contributionAmount || isSubmitting} className="flex-1 px-4 py-3 bg-accent text-accent-foreground rounded-md hover:bg-accent/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 font-semibold">
+                  {isSubmitting ? <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div> : <CreditCard className="h-4 w-4" />}<span>{isSubmitting ? 'Aguarde...' : 'Contribuir'}</span>
                 </button>
               </div>
             </div>

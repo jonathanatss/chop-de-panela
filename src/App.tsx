@@ -190,7 +190,7 @@ const AppContent = () => {
       <main>
         <Hero eventInfo={eventInfo} />
         <About eventInfo={eventInfo} />
-        <Wishlist wishlist={wishlist} />
+        <Wishlist wishlist={wishlist} eventInfo={eventInfo} />
         <Contact eventInfo={eventInfo} onSubmitMessage={handleSubmitMessage} />
       </main>
       {/* CORREÇÃO DO FOOTER */}

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const WishlistItem = require('../models/WishlistItem');
+const nodemailer = require("nodemailer");
 
 // ROTA PÚBLICA: Listar todos os itens
 router.get('/', async (req, res) => {
@@ -88,5 +89,42 @@ router.delete('/:id', auth, async (req, res) => {
     res.status(500).json({ msg: 'Erro no servidor' });
   }
 });
+
+router.post('/contribution/send-confirm-email', async (req, res) => {
+  const contributorName = req.body.contributorName;
+  const contributionAmount = req.body.contributionAmount;
+  const wishListItem = req.body.wishListItem;
+
+  const result = await sendConfirmEmail(contributorName, contributionAmount, wishListItem);
+
+  if (result){
+    res.json({ message: "E-mail enviado com sucesso" });
+  }else{
+    res.status(500).json({ error: "Erro ao enviar e-mail" });
+  }
+});
+
+const sendConfirmEmail = async (contributorName, contributionAmount, wishListItem) => {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    await transporter.sendMail({
+      from: `"Chá de Panela" <${process.env.EMAIL_USER}>`,
+      to: "cayobe6166@lespedia.com",
+      subject: "Nova contribuição recebida 🎁",
+      text: `O convidado ${contributorName} contribuiu com R$${contributionAmount} para o item: ${wishListItem.name}.`,
+    });
+
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
 
 module.exports = router;

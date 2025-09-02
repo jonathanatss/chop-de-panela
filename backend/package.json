@@ -19,7 +19,8 @@
     "jsonwebtoken": "^9.0.0",
     "mercadopago": "^2.0.10",
     "mongodb": "^6.19.0",
-    "mongoose": "^7.0.3"
+    "mongoose": "^7.0.3",
+    "nodemailer": "^7.0.6"
   },
   "devDependencies": {
     "nodemon": "^2.0.22"
