@@ -116,9 +116,9 @@ const sendConfirmEmail = async (contributorName, contributionAmount, wishListIte
 
     await transporter.sendMail({
       from: `"Chá de Panela" <${process.env.EMAIL_USER}>`,
-      to: "cayobe6166@lespedia.com",
+      to:  `<${process.env.EMAIL_USER}>`,
       subject: "Nova contribuição recebida 🎁",
-      text: `O convidado ${contributorName} contribuiu com R$${contributionAmount} para o item: ${wishListItem.name}.`,
+      text: `Olá, fi de rapariga!! O convidado ${contributorName} contribuiu com R$${contributionAmount} para o item: ${wishListItem.name}.`,
     });
 
     return true;

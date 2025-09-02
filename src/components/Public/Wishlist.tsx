@@ -51,16 +51,16 @@ const Wishlist: React.FC<WishlistProps> = ({ eventInfo, wishlist }) => {
     setModalError('');
 
     try {
-      // const response = await fetch("http://localhost:5000/api/wishlist/contribution/send-confirm-email", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify(data)
-      // });
+      const response = await fetch("http://localhost:5000/api/wishlist/contribution/send-confirm-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
 
-      // if (!response.ok) {
-      //   const err = await response.json();
-      //   throw new Error(err.msg || 'Falha ao confirmar contribuição.');
-      // }
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.msg || 'Falha ao confirmar contribuição.');
+      }
 
       setThanks(true);
 
