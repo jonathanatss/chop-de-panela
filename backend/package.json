@@ -9,7 +9,8 @@
     "seed": "node scripts/seed.js",
     "user:create": "node scripts/create-user.js",
     "user:password": "node scripts/change-password.js",
-    "user:delete": "node scripts/delete-user.js"
+    "user:delete": "node scripts/delete-user.js",
+    "user:list": "node scripts/list-admins.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
