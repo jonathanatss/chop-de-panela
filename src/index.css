@@ -1,3 +1,124 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* CHOP DE PANELA Design System - Happy Hour Romântico 🍺💕 */
+
+@layer base {
+  :root {
+    /* CHOP DE PANELA Brand Colors */
+    --background: 45 30% 97%; /* Foam background */
+    --foreground: 30 20% 15%; /* Dark brown text */
+
+    --card: 45 30% 99%; /* Pure foam white */
+    --card-foreground: 30 20% 15%;
+
+    --popover: 45 30% 99%;
+    --popover-foreground: 30 20% 15%;
+
+    /* Primary: Brand Amber (âmbar de chopp) */
+    --primary: 38 85% 55%; /* #F4A226 */
+    --primary-foreground: 30 20% 15%;
+    --primary-glow: 38 90% 65%;
+
+    /* Secondary: Foam (espuma) */
+    --secondary: 45 50% 95%; /* #FFF6E9 */
+    --secondary-foreground: 30 20% 25%;
+
+    --muted: 45 25% 94%;
+    --muted-foreground: 30 15% 45%;
+
+    /* Accent: Brand Brown (malte/madeira) */
+    --accent: 30 35% 25%; /* #5A3E2B */
+    --accent-foreground: 45 30% 95%;
+
+    --destructive: 0 70% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 45 25% 88%;
+    --input: 45 25% 92%;
+    --ring: 38 85% 55%;
+
+    --radius: 0.75rem;
+
+    /* Success for contributions */
+    --success: 140 65% 55%;
+    --success-foreground: 0 0% 100%;
+
+    /* CHOP DE PANELA specific colors */
+    --brand-amber: 38 85% 55%;       /* #F4A226 */
+    --brand-amber-50: 38 90% 95%;
+    --brand-amber-100: 38 90% 90%;
+    --brand-amber-200: 38 85% 80%;
+    --brand-amber-300: 38 85% 70%;
+    --brand-amber-400: 38 85% 60%;
+    --brand-amber-500: 38 85% 55%;
+    --brand-amber-600: 38 80% 50%;
+    --brand-amber-700: 38 75% 45%;
+    --brand-amber-800: 38 70% 35%;
+    --brand-amber-900: 38 65% 25%;
+    
+    --brand-foam: 45 50% 95%;        /* #FFF6E9 */
+    --brand-brown: 30 35% 25%;       /* #5A3E2B */
+    --brand-wheat: 45 60% 68%;       /* #E8C170 */
+    --brand-rose: 330 65% 78%;       /* #F3AEC9 */
+    --brand-olive: 75 30% 42%;       /* #7A8F49 */
+    --brand-slate: 220 15% 20%;      /* #1F2937 */
+    --brand-steel: 220 10% 65%;      /* #9CA3AF */
+
+    /* Beer-themed gradients */
+    --gradient-beer: linear-gradient(135deg, hsl(var(--brand-amber)), hsl(var(--brand-wheat)));
+    --gradient-foam: linear-gradient(180deg, hsl(var(--brand-foam)), hsl(45 30% 92%));
+    --gradient-hero: linear-gradient(135deg, hsl(var(--brand-amber) / 0.1), hsl(var(--brand-foam)));
+    --gradient-card: linear-gradient(145deg, hsl(var(--brand-foam)), hsl(45 25% 96%));
+    
+    /* Beer-themed shadows */
+    --shadow-beer: 0 10px 40px -10px hsl(var(--brand-amber) / 0.3);
+    --shadow-foam: 0 4px 20px -2px hsl(var(--brand-amber) / 0.15);
+    --shadow-glow: 0 0 30px hsl(var(--brand-amber) / 0.4);
+
+    /* Animation timing for beer effects */
+    --transition-beer: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bubble: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-inter;
+  }
+
+  /* Typography system */
+  .font-beer-heading {
+    font-family: 'Bebas Neue', 'Arial Black', sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .font-inter {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  /* Custom scrollbar para tema cerveja */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--brand-foam));
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--brand-amber));
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--brand-amber) / 0.8);
+  }
+}

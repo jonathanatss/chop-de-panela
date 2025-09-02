@@ -7,33 +7,33 @@ interface AboutProps {
 
 const About: React.FC<AboutProps> = ({ eventInfo }) => {
   return (
-    <section className="py-20 bg-gradient-to-br from-pink-50 to-rose-50">
+    <section className="py-20 bg-secondary">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 className="text-4xl font-bold text-gray-800 mb-8">
-          Nossa História
+        <h2 className="text-4xl font-bold text-foreground mb-8 font-beer-heading">
+          A Nossa História
         </h2>
         
-        <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12">
-          <p className="text-lg text-gray-600 leading-relaxed mb-8">
+        <div className="bg-card rounded-lg shadow-foam p-8 md:p-12 border border-border/50">
+          <p className="text-lg text-muted-foreground leading-relaxed mb-8">
             {eventInfo.aboutText}
           </p>
           
           <div className="grid md:grid-cols-2 gap-8">
-            <div className="bg-gradient-to-br from-pink-100 to-rose-100 rounded-xl p-6">
-              <h3 className="font-semibold text-xl text-gray-800 mb-4">
+            <div className="bg-background rounded-md p-6 border border-border">
+              <h3 className="font-semibold text-xl text-foreground mb-4 font-beer-heading">
                 Como Participar
               </h3>
-              <p className="text-gray-600">
-                Escolha um presente da nossa lista de desejos e nos ajude a começar nossa vida juntos com tudo que precisamos para nosso lar.
+              <p className="text-muted-foreground">
+                Escolha um presente da nossa lista de desejos e ajude-nos a começar a nossa vida juntos com tudo o que precisamos para o nosso lar.
               </p>
             </div>
             
-            <div className="bg-gradient-to-br from-amber-100 to-yellow-100 rounded-xl p-6">
-              <h3 className="font-semibold text-xl text-gray-800 mb-4">
+            <div className="bg-background rounded-md p-6 border border-border">
+              <h3 className="font-semibold text-xl text-foreground mb-4 font-beer-heading">
                 PIX Disponível
               </h3>
-              <p className="text-gray-600">
-                Prefere contribuir via PIX? Temos essa opção disponível para facilitar sua participação em nosso chá de panela.
+              <p className="text-muted-foreground">
+                Prefere contribuir via PIX? Temos essa opção disponível para facilitar a sua participação no nosso chá de panela.
               </p>
             </div>
           </div>

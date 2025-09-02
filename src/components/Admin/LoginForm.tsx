@@ -54,7 +54,7 @@ const LoginForm: React.FC = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-                  placeholder="admin@chadepanela.com"
+                  placeholder="seu@email.com"
                 />
               </div>
             </div>
@@ -102,15 +102,7 @@ const LoginForm: React.FC = () => {
             </button>
           </form>
 
-          <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-600 mb-2">
-              <strong>Dados de teste:</strong>
-            </p>
-            <p className="text-xs text-gray-500">
-              Email: admin@chadepanela.com<br />
-              Senha: admin123
-            </p>
-          </div>
+          {/* A SEÇÃO DE DADOS DE TESTE FOI REMOVIDA DAQUI */}
         </div>
       </div>
     </div>

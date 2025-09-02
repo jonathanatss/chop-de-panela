@@ -21,10 +21,8 @@ const Contact: React.FC<ContactProps> = ({ eventInfo, onSubmitMessage }) => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await onSubmitMessage(formData.name, formData.email, formData.message);
     
-    onSubmitMessage(formData.name, formData.email, formData.message);
     setSubmitted(true);
     setFormData({ name: '', email: '', message: '' });
     setIsSubmitting(false);
@@ -50,33 +48,35 @@ const Contact: React.FC<ContactProps> = ({ eventInfo, onSubmitMessage }) => {
   };
 
   return (
-    <section className="py-20 bg-gradient-to-br from-gray-50 to-gray-100">
+    <section className="py-20 bg-secondary">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-gray-800 mb-4">
-            Entre em Contato
+          <h2 className="text-4xl font-bold text-foreground mb-4 font-beer-heading">
+            Deixe uma Mensagem
           </h2>
-          <p className="text-lg text-gray-600">
-            Deixe sua mensagem ou contribute via PIX
+          <p className="text-lg text-muted-foreground">
+            Deixe sua mensagem de carinho ou contribua via PIX
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-12">
-          {/* Contact Form */}
-          <div className="bg-white rounded-2xl shadow-lg p-8">
-            <h3 className="text-2xl font-bold text-gray-800 mb-6">
-              Deixe uma Mensagem
+        {/* Container principal alterado para Flexbox responsivo */}
+        <div className="flex flex-col lg:flex-row gap-12 items-start">
+          
+          {/* Formulário de Contato - Ocupará 50% em telas grandes */}
+          <div className="bg-card rounded-lg shadow-foam p-8 w-full lg:w-1/2 border border-border/50">
+            <h3 className="text-2xl font-bold text-foreground mb-6 font-beer-heading">
+              Escreva para nós
             </h3>
             
             {submitted && (
-              <div className="mb-6 p-4 bg-green-100 border border-green-200 rounded-lg text-green-700">
+              <div className="mb-6 p-4 bg-success/10 border border-success/20 rounded-md text-success">
                 ✅ Mensagem enviada com sucesso!
               </div>
             )}
             
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Nome Completo
                 </label>
                 <input
@@ -85,13 +85,13 @@ const Contact: React.FC<ContactProps> = ({ eventInfo, onSubmitMessage }) => {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-input rounded-md focus:ring-2 focus:ring-ring bg-background"
                   placeholder="Seu nome completo"
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Email
                 </label>
                 <input
@@ -100,13 +100,13 @@ const Contact: React.FC<ContactProps> = ({ eventInfo, onSubmitMessage }) => {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-input rounded-md focus:ring-2 focus:ring-ring bg-background"
                   placeholder="seu@email.com"
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Mensagem
                 </label>
                 <textarea
@@ -115,7 +115,7 @@ const Contact: React.FC<ContactProps> = ({ eventInfo, onSubmitMessage }) => {
                   onChange={handleChange}
                   required
                   rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-input rounded-md focus:ring-2 focus:ring-ring bg-background"
                   placeholder="Escreva sua mensagem de felicitações..."
                 />
               </div>
@@ -123,7 +123,7 @@ const Contact: React.FC<ContactProps> = ({ eventInfo, onSubmitMessage }) => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-gradient-to-r from-pink-500 to-rose-500 text-white px-6 py-3 rounded-lg hover:from-pink-600 hover:to-rose-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                className="w-full bg-accent text-accent-foreground px-6 py-3 rounded-md hover:bg-accent/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 font-semibold"
               >
                 <Send className="h-4 w-4" />
                 <span>{isSubmitting ? 'Enviando...' : 'Enviar Mensagem'}</span>
@@ -131,21 +131,21 @@ const Contact: React.FC<ContactProps> = ({ eventInfo, onSubmitMessage }) => {
             </form>
           </div>
 
-          {/* PIX Section */}
-          <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl shadow-lg p-8">
+          {/* Seção PIX - Ocupará 50% em telas grandes */}
+          <div className="bg-gradient-foam rounded-lg shadow-foam p-8 w-full lg:w-1/2 border border-border/50">
             <div className="text-center mb-8">
-              <CreditCard className="h-16 w-16 text-green-600 mx-auto mb-4" />
-              <h3 className="text-2xl font-bold text-gray-800 mb-2">
+              <CreditCard className="h-16 w-16 text-primary mx-auto mb-4" />
+              <h3 className="text-2xl font-bold text-foreground mb-2 font-beer-heading">
                 Contribuição via PIX
               </h3>
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 Prefere contribuir diretamente? Use nosso PIX abaixo
               </p>
             </div>
             
-            <div className="bg-white rounded-xl p-6 mb-6">
+            <div className="bg-card rounded-md p-6 mb-6 border border-border">
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Chave PIX
                 </label>
                 <div className="flex items-center space-x-2">
@@ -153,11 +153,11 @@ const Contact: React.FC<ContactProps> = ({ eventInfo, onSubmitMessage }) => {
                     type="text"
                     value={eventInfo.pixKey}
                     readOnly
-                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-700"
+                    className="flex-1 px-4 py-3 border border-input rounded-md bg-background text-muted-foreground"
                   />
                   <button
                     onClick={copyPixKey}
-                    className="px-4 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center space-x-2"
+                    className="px-4 py-3 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors flex items-center space-x-2"
                   >
                     {pixCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                     <span>{pixCopied ? 'Copiado!' : 'Copiar'}</span>
@@ -166,21 +166,21 @@ const Contact: React.FC<ContactProps> = ({ eventInfo, onSubmitMessage }) => {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Nome do Beneficiário
                 </label>
                 <input
                   type="text"
                   value={eventInfo.pixName}
                   readOnly
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-700"
+                  className="w-full px-4 py-3 border border-input rounded-md bg-background text-muted-foreground"
                 />
               </div>
             </div>
             
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <p className="text-yellow-800 text-sm">
-                💡 <strong>Dica:</strong> Após fazer o PIX, envie-nos uma mensagem confirmando sua contribuição para que possamos agradecê-lo pessoalmente!
+            <div className="bg-brand-amber-50 border border-brand-amber-200 rounded-lg p-4">
+              <p className="text-brand-amber-800 text-sm">
+                💡 <strong>Dica:</strong> Após fazer o PIX, envie-nos uma mensagem ao lado para que possamos agradecer pessoalmente!
               </p>
             </div>
           </div>

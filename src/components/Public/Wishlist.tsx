@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Heart, CheckCircle, Gift, CreditCard } from 'lucide-react';
 import { WishlistItem } from '../../types';
 
-// O onContribute não é mais passado como prop
 interface WishlistProps {
   wishlist: WishlistItem[];
 }
@@ -17,7 +16,7 @@ const Wishlist: React.FC<WishlistProps> = ({ wishlist }) => {
 
   if (!Array.isArray(wishlist)) {
     return (
-      <section className="py-20 bg-light-foam" id="wishlist">
+      <section className="py-20 bg-background" id="wishlist">
         <div className="text-center">A carregar lista de presentes...</div>
       </section>
     );
@@ -84,24 +83,24 @@ const Wishlist: React.FC<WishlistProps> = ({ wishlist }) => {
   }
 
   return (
-    <section className="py-20 bg-light-foam" id="wishlist">
+    <section className="py-20 bg-background" id="wishlist">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-5xl font-black text-dark-wood mb-4 font-display uppercase">A nossa Lista de Presentes</h2>
-          <p className="text-lg text-gray-600 mb-8">Contribua com um valor ou compre o item inteiro. Toda a ajuda é bem-vinda!</p>
+          <h2 className="text-5xl font-black text-foreground mb-4 font-beer-heading uppercase">A nossa Lista de Presentes</h2>
+          <p className="text-lg text-muted-foreground mb-8">Contribua com um valor ou compre o item inteiro. Toda a ajuda é bem-vinda!</p>
           <div className="max-w-md mx-auto">
-            <div className="flex justify-between text-sm text-gray-600 mb-2">
+            <div className="flex justify-between text-sm text-muted-foreground mb-2">
               <span>{fundedItems} de {totalItems} itens completados</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-3">
-              <div className="bg-gradient-to-r from-beer-amber to-amber-400 h-3 rounded-full transition-all duration-500" style={{ width: `${progress}%` }}></div>
+            <div className="w-full bg-secondary rounded-full h-3">
+              <div className="bg-gradient-beer h-3 rounded-full transition-all duration-500" style={{ width: `${progress}%` }}></div>
             </div>
           </div>
         </div>
 
         <div className="flex flex-wrap justify-center gap-4 mb-12">
           {categories.map((category) => (
-            <button key={category} onClick={() => setSelectedCategory(category)} className={`px-6 py-3 rounded-full transition-all font-semibold ${selectedCategory === category ? 'bg-dark-wood text-white shadow-lg' : 'bg-white text-dark-wood hover:bg-amber-100'}`}>
+            <button key={category} onClick={() => setSelectedCategory(category)} className={`px-6 py-3 rounded-full transition-all font-semibold ${selectedCategory === category ? 'bg-accent text-accent-foreground shadow-beer' : 'bg-card text-foreground hover:bg-secondary'}`}>
               {category}
             </button>
           ))}
@@ -112,25 +111,25 @@ const Wishlist: React.FC<WishlistProps> = ({ wishlist }) => {
             if (!item) return null;
             const contributionProgress = (item.amountContributed / item.price) * 100;
             return (
-              <div key={item.id} className={`bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 flex flex-col ${item.isFullyFunded ? 'opacity-75' : 'hover:shadow-xl hover:transform hover:-translate-y-2'}`}>
+              <div key={item.id} className={`bg-card rounded-lg shadow-foam border border-border/50 overflow-hidden transition-all duration-300 flex flex-col ${item.isFullyFunded ? 'opacity-75' : 'hover:shadow-beer hover:-translate-y-2'}`}>
                 <div className="relative">
                   <img src={item.image} alt={item.name} className="w-full h-48 object-cover"/>
-                  {item.isFullyFunded && (<div className="absolute inset-0 bg-green-600/80 flex flex-col items-center justify-center text-center text-white p-4"><CheckCircle className="h-12 w-12 mx-auto mb-2" /><p className="font-semibold">Presente Completo!</p><p className="text-sm mt-1">Obrigado a todos!</p></div>)}
-                  <div className="absolute top-4 right-4"><span className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium text-dark-wood">{item.category}</span></div>
+                  {item.isFullyFunded && (<div className="absolute inset-0 bg-success/80 backdrop-blur-sm flex flex-col items-center justify-center text-center text-success-foreground p-4"><CheckCircle className="h-12 w-12 mx-auto mb-2" /><p className="font-semibold font-beer-heading">Presente Completo!</p><p className="text-sm mt-1">Obrigado a todos!</p></div>)}
+                  <div className="absolute top-4 right-4"><span className="bg-card/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-semibold text-foreground">{item.category}</span></div>
                 </div>
                 <div className="p-6 flex flex-col flex-grow">
-                  <h3 className="font-bold text-xl text-dark-wood mb-2">{item.name}</h3>
-                  <p className="text-gray-600 text-sm mb-4 flex-grow h-12 overflow-hidden">{item.description}</p>
+                  <h3 className="font-bold text-xl text-foreground mb-2 font-beer-heading">{item.name}</h3>
+                  <p className="text-muted-foreground text-sm mb-4 flex-grow h-12 overflow-hidden">{item.description}</p>
                   <div className="mb-4">
-                      <div className="flex justify-between text-xs text-gray-500 mb-1">
+                      <div className="flex justify-between text-xs text-muted-foreground mb-1">
                           <span>{formatPrice(item.amountContributed)} / {formatPrice(item.price)}</span>
                           <span>{contributionProgress.toFixed(0)}%</span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2.5"><div className="bg-beer-amber h-2.5 rounded-full" style={{ width: `${contributionProgress}%` }}></div></div>
+                      <div className="w-full bg-secondary rounded-full h-2.5"><div className="bg-gradient-beer h-2.5 rounded-full" style={{ width: `${contributionProgress}%` }}></div></div>
                   </div>
                   <div className="flex items-center justify-between mt-auto">
-                    <span className="text-2xl font-bold text-dark-wood">{formatPrice(item.price)}</span>
-                    {!item.isFullyFunded && (<button onClick={() => handleOpenModal(item)} className="bg-dark-wood text-white px-6 py-2 rounded-lg hover:bg-black transition-all flex items-center space-x-2 font-semibold"><Gift className="h-4 w-4" /><span>Oferecer</span></button>)}
+                    <span className="text-2xl font-bold text-primary">{formatPrice(item.price)}</span>
+                    {!item.isFullyFunded && (<button onClick={() => handleOpenModal(item)} className="bg-accent text-accent-foreground px-6 py-2 rounded-md hover:bg-accent/90 transition-all flex items-center space-x-2 font-semibold"><Gift className="h-4 w-4" /><span>Oferecer</span></button>)}
                   </div>
                 </div>
               </div>
@@ -140,14 +139,14 @@ const Wishlist: React.FC<WishlistProps> = ({ wishlist }) => {
       </div>
 
       {selectedItem && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-8 transition-all duration-300">
+        <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-card rounded-lg max-w-md w-full p-8 transition-all duration-300 animate-scale-in border border-border">
             <div>
-              <div className="text-center mb-6"><Heart className="h-12 w-12 text-beer-amber mx-auto mb-4" /><h3 className="text-2xl font-bold text-dark-wood mb-2">Contribuir para {selectedItem.name}</h3><p className="text-gray-600">Faltam <strong>{formatPrice(selectedItem.amountRemaining)}</strong> para completar.</p></div>
+              <div className="text-center mb-6"><Heart className="h-12 w-12 text-primary mx-auto mb-4 animate-heart-pulse" /><h3 className="text-2xl font-bold text-foreground mb-2 font-beer-heading">Contribuir para {selectedItem.name}</h3><p className="text-muted-foreground">Faltam <strong>{formatPrice(selectedItem.amountRemaining)}</strong> para completar.</p></div>
               <div className="space-y-4 mb-6">
-                <div><label className="block text-sm font-medium text-gray-700 mb-2">O seu nome:</label><input type="text" value={contributorName} onChange={(e) => setContributorName(e.target.value)} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-beer-amber" placeholder="Digite o seu nome completo"/></div>
+                <div><label className="block text-sm font-medium text-foreground mb-2">O seu nome:</label><input type="text" value={contributorName} onChange={(e) => setContributorName(e.target.value)} className="w-full px-4 py-3 border border-input rounded-md focus:ring-2 focus:ring-ring bg-background" placeholder="Digite o seu nome completo"/></div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Valor da contribuição (R$):</label>
+                  <label className="block text-sm font-medium text-foreground mb-2">Valor da contribuição (R$):</label>
                   <input 
                     type="number" 
                     value={contributionAmount} 
@@ -155,15 +154,15 @@ const Wishlist: React.FC<WishlistProps> = ({ wishlist }) => {
                     min={effectiveMin.toFixed(2)} 
                     max={selectedItem.amountRemaining.toFixed(2)} 
                     step="0.01" 
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-beer-amber" 
+                    className="w-full px-4 py-3 border border-input rounded-md focus:ring-2 focus:ring-ring bg-background" 
                     placeholder={`Mínimo ${formatPrice(effectiveMin)}`}
                   />
                 </div>
               </div>
-              {modalError && <p className="text-red-600 text-sm text-center mb-4">{modalError}</p>}
+              {modalError && <p className="text-destructive text-sm text-center mb-4">{modalError}</p>}
               <div className="flex space-x-4">
-                <button onClick={handleCloseModal} className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-semibold">Cancelar</button>
-                <button onClick={handlePayment} disabled={!contributorName.trim() || !contributionAmount || isSubmitting} className="flex-1 px-4 py-3 bg-dark-wood text-white rounded-lg hover:bg-black transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 font-semibold">
+                <button onClick={handleCloseModal} className="flex-1 px-4 py-3 border border-border text-foreground rounded-md hover:bg-secondary transition-colors font-semibold">Cancelar</button>
+                <button onClick={handlePayment} disabled={!contributorName.trim() || !contributionAmount || isSubmitting} className="flex-1 px-4 py-3 bg-accent text-accent-foreground rounded-md hover:bg-accent/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 font-semibold">
                   {isSubmitting ? <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div> : <CreditCard className="h-4 w-4" />}<span>{isSubmitting ? 'Aguarde...' : 'Pagar Agora'}</span>
                 </button>
               </div>

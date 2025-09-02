@@ -159,7 +159,7 @@ const AppContent = () => {
 
   const handleAdminNavigate = (section: string) => setAdminSection(section);
 
-  if (isLoadingData) return <div className="min-h-screen flex items-center justify-center bg-light-foam text-dark-wood">A carregar o barril...</div>;
+  if (isLoadingData) return <div className="min-h-screen flex items-center justify-center bg-background text-foreground">A carregar o barril...</div>;
   if (currentView === 'admin' && !user) return <LoginForm />;
   
   if (currentView === 'admin' && user && eventInfo && wishlist) {
@@ -167,7 +167,7 @@ const AppContent = () => {
       <div className="min-h-screen bg-gray-50">
         <Header currentView={currentView} onViewChange={handleViewChange} />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {adminSection === 'dashboard' && <Dashboard wishlist={wishlist} messages={messages} eventInfo={eventInfo} onNavigate={handleAdminNavigate} />}
+          {adminSection === 'dashboard' && <Dashboard wishlist={wishlist} messages={messages} eventInfo={eventInfo} onNavigate={handleAdminNavigate}/>}
           {adminSection === 'wishlist' && <WishlistManager 
               wishlist={wishlist} 
               onAddItem={handleAddItem} 
@@ -182,10 +182,10 @@ const AppContent = () => {
     );
   }
 
-  if (!eventInfo || !wishlist) return <div className="min-h-screen flex items-center justify-center bg-light-foam text-dark-wood">Falha ao carregar. Verifique se o backend está a correr e recarregue.</div>
+  if (!eventInfo || !wishlist) return <div className="min-h-screen flex items-center justify-center bg-background text-foreground">Falha ao carregar. Verifique se o backend está a correr e recarregue.</div>
 
   return (
-    <div className="min-h-screen bg-light-foam">
+    <div className="min-h-screen bg-background">
       <Header currentView={currentView} onViewChange={handleViewChange} />
       <main>
         <Hero eventInfo={eventInfo} />
@@ -193,14 +193,15 @@ const AppContent = () => {
         <Wishlist wishlist={wishlist} />
         <Contact eventInfo={eventInfo} onSubmitMessage={handleSubmitMessage} />
       </main>
-      <footer className="bg-dark-wood text-white py-12">
+      {/* CORREÇÃO DO FOOTER */}
+      <footer className="bg-accent text-accent-foreground py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="mb-6">
-            <h3 className="text-3xl font-display tracking-wider mb-2">{eventInfo.brideNames}</h3>
-            {eventInfo.eventDate && <p className="text-gray-300">{new Date(`${eventInfo.eventDate}T00:00:00`).toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>}
+            <h3 className="text-3xl font-beer-heading tracking-wider mb-2">{eventInfo.brideNames}</h3>
+            {eventInfo.eventDate && <p className="text-accent-foreground/80">{new Date(`${eventInfo.eventDate}T00:00:00`).toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>}
           </div>
-          <div className="border-t border-gray-700 pt-6">
-            <p className="text-gray-400">
+          <div className="border-t border-accent-foreground/20 pt-6">
+            <p className="text-accent-foreground/70">
               © 2025 Chopp de Panela. Um brinde ao amor! 🍻
             </p>
           </div>
@@ -215,3 +216,4 @@ function App() {
 }
 
 export default App;
+
